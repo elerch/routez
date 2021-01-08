@@ -121,6 +121,10 @@ pub fn match(
     var len: usize = undefined;
 
     inline for (route.path) |c, i| {
+        comptime if (state == .Start and c == '*') {
+            state = .Path;
+            break;
+        };
         switch (state) {
             .Start => comptime switch (c) {
                 '/' => {
@@ -302,7 +306,7 @@ pub fn match(
         }
     };
     const r = pathbuf[begin..index];
-    if (!mem.eql(u8, r, path[path_index..])) {
+    if (!mem.eql(u8, r, path[path_index..]) and route.path[0] != '*') {
         return false;
     }
     if (route.method) |m| {
